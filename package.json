@@ -1,0 +1,31 @@
+{
+  "name": "bun_solid_js",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "bunx --bun vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "server": "bun run --hot --watch elysia_server.js"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@elysiajs/cookie": "^0.6.1",
+    "@elysiajs/html": "^0.6.5",
+    "@elysiajs/jwt": "^0.6.4",
+    "@elysiajs/static": "^0.6.0",
+    "@fastify/static": "^6.11.0",
+    "@fastify/vite": "^4.0.0",
+    "elysia": "^0.6.22",
+    "fastify": "^4.22.2",
+    "solid-js": "^1.7.11",
+    "vite": "^4.4.9",
+    "vite-plugin-fastify": "^1.2.4",
+    "vite-plugin-solid": "^2.7.0"
+  }
+}
