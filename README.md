@@ -14,13 +14,43 @@
  * vanjs 1.0.0  https://vanjs.org
 
 # Information:
-  This is just test build web http server.
+  This is just test build web http server run on bun application.
 
-  By using Bun with elysiajs and sqlite for http server to fast and simple.
-
-  This is for testing http server builds.
+  By using Bun with elysiajs and sqlite for fast and simple http server.
 
   Simple auth login and register test. There are two type build for frontend render.
+
+  Just to build test some features.
+
+# Layout:
+ * public ( client )
+ * template ( client )
+   * user.html
+    * login
+    * sign up
+  * task.html
+    * add
+    * edit
+    * delete
+ * src
+    * 'file name'.jsx ( client )
+ * elysia_server.js ( test server )
+   * login
+   * sigin up
+   * task
+     * add
+     * edit
+     * delete
+ * server.js ( main? server )
+   * login
+   * sigin up
+ * vite.config.js
+  * solidjs html client
+  * server
+
+# Features:
+ * simple task add, edit and delete.
+ * account register and login test.
 
 # Windows:
 ```
