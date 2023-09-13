@@ -18,7 +18,10 @@ export default defineConfig({
   //root: join(dirname(fileURLToPath(new URL(import.meta.url))), 'src'),
   server:{
     host: '127.0.0.1',
-    port:3000
+    port:3000,
+    watch:{
+      usePolling:true
+    }
   },
   plugins: [
     solid(),

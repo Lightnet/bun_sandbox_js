@@ -20,9 +20,9 @@ import { jwt } from "@elysiajs/jwt";
 //===============================================
 // https://bun.sh/docs/api/sqlite
 const db = new Database("database.sqlite");
-const query = db.query("select 'Hello world' as message;");
+//const query = db.query("select 'Hello world' as message;");
 //query.get(); // => { message: "Hello world" }
-console.log(query.get())
+//console.log(query.get())
 
 function create_tables(){
   //const query = db.query(`create table foo;`);
@@ -54,7 +54,9 @@ const app = new Elysia();
 
 app.decorate('db', db);
 app.use(html());
-app.use(staticPlugin());
+app.use(staticPlugin({
+  prefix:"/"
+}));
 app.use(
   jwt({
     name: "jwt",
@@ -68,7 +70,8 @@ app.use(cookie({
 }));
 
 //app.get('/', () => 'Hello Elysia');
-app.get('/', () => Bun.file("user.html").text());
+app.get('/', () => Bun.file("template/user.html").text());
+/*
 app.get("/test.js", async () => {
     //console.log(await Bun.file("test.js").text())
     let content = await Bun.file("test.js").text();
@@ -92,6 +95,7 @@ app.get("/user.js", async () => {
   })
 }
 )
+*/
 //===============================================
 // AUTH
 //===============================================
@@ -162,7 +166,8 @@ app.post("/api/auth/signin", async ({body, set, jwt, setCookie}) => {
 // TO DO TASKS
 //===============================================
 
-app.get('/task', () => Bun.file("task.html").text());
+app.get('/task', () => Bun.file("template/task.html").text());
+/*
 app.get("/task.js", async () => {
   //console.log(await Bun.file("test.js").text())
   let content = await Bun.file("task.js").text();
@@ -172,8 +177,8 @@ app.get("/task.js", async () => {
       'Content-Type': 'application/javascript'
     }
   })
-}
-)
+})
+*/
 
 app.get("/api/task", async () => {
 
@@ -276,3 +281,4 @@ app.get('/rawjson', () => {
 app.listen(8080);
  
 console.log(`Elysia is running at http://${app.server?.hostname}:${app.server?.port}`)
+//END SERVER

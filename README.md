@@ -1,20 +1,36 @@
 # bun_sandbox_js
 
+# program:
+ * Bun 1.0
+
+# Packages:
+ * elysiajs
+   * cookie
+   * html
+   * jwt
+   * static
+ * solid-js
+ * vite
+ * vanjs 1.0.0  https://vanjs.org
+
 # Information:
   This is just test build web http server.
 
+  By using Bun with elysiajs and sqlite for http server to fast and simple.
 
-  
+  This is for testing http server builds.
 
-# Windows
+  Simple auth login and register test. There are two type build for frontend render.
+
+# Windows:
 ```
 wsl
 ```
 Note you need to install sub linux to work.
 
-
 To install dependencies:
 
+# Command Lines:
 ```bash
 bun install
 ```

@@ -5,7 +5,7 @@
 // https://elysiajs.com/plugins/jwt.html
 // https://elysiajs.com/plugins/cookie.html
 // https://elysiajs.com/plugins/static.html
-// 
+// https://bun.sh/docs/runtime/hot
 // 
 
 import { Elysia } from 'elysia';
@@ -15,14 +15,21 @@ import { Database } from "bun:sqlite";
 import { cookie } from '@elysiajs/cookie'
 import { jwt } from "@elysiajs/jwt";
 
+//globalThis.count ??= 0;
+//console.log(`Reloaded ${globalThis.count} times`);
+//globalThis.count++;
+
+// prevent `bun run` from exiting
+//setInterval(function () {}, 1000000);
+
 //===============================================
 // DATABASE
 //===============================================
 // https://bun.sh/docs/api/sqlite
 const db = new Database("database.sqlite");
-const query = db.query("select 'Hello world' as message;");
+//const query = db.query("select 'Hello world' as message;");
 //query.get(); // => { message: "Hello world" }
-console.log(query.get())
+//console.log(query.get())
 
 function create_tables(){
   //const query = db.query(`create table foo;`);
@@ -54,7 +61,9 @@ const app = new Elysia();
 
 app.decorate('db', db);
 app.use(html());
-app.use(staticPlugin());
+app.use(staticPlugin({
+  prefix:"/"
+}));
 app.use(
   jwt({
     name: "jwt",
@@ -68,30 +77,8 @@ app.use(cookie({
 }));
 
 //app.get('/', () => 'Hello Elysia');
-app.get('/', () => Bun.file("user.html").text());
-app.get("/test.js", async () => {
-    //console.log(await Bun.file("test.js").text())
-    let content = await Bun.file("test.js").text();
-    console.log(content)
-    return new Response(content, {
-      headers: {
-        'Content-Type': 'application/javascript'
-      }
-    })
-  }
-)
+app.get('/', () => Bun.file("template/user.html").text());
 
-app.get("/user.js", async () => {
-  //console.log(await Bun.file("test.js").text())
-  let content = await Bun.file("user.js").text();
-  //console.log(content)
-  return new Response(content, {
-    headers: {
-      'Content-Type': 'application/javascript'
-    }
-  })
-}
-)
 //===============================================
 // AUTH
 //===============================================
@@ -158,121 +145,10 @@ app.post("/api/auth/signin", async ({body, set, jwt, setCookie}) => {
     //headers
   })
 });
-//===============================================
-// TO DO TASKS
-//===============================================
 
-app.get('/task', () => Bun.file("task.html").text());
-app.get("/task.js", async () => {
-  //console.log(await Bun.file("test.js").text())
-  let content = await Bun.file("task.js").text();
-  console.log(content)
-  return new Response(content, {
-    headers: {
-      'Content-Type': 'application/javascript'
-    }
-  })
-}
-)
 
-app.get("/api/task", async () => {
-
-  let tasks = db.query('SELECT * FROM tasks').all();
-  if(tasks){
-    console.log(tasks);
-    return tasks;
-  }
-
-  return new Response(JSON.stringify({api:"ERROR"}))
-})
-
-app.post("/api/task", async ({body}) => {
-  console.log(body)
-
-  if (body){
-    if((body.content != null) && (body.content != "")){
-      console.log("found")
-      let query = db.query(`INSERT INTO tasks (content) VALUES (?) RETURNING id`)
-        .get(body.content);
-      console.log("add query: ",query);
-      return new Response(JSON.stringify({api:"CREATED",id:query.id}))
-    }
-  }
-
-  return new Response(JSON.stringify({api:"ERROR"}), {
-    //headers
-  })
+app.listen(8080, ({ hostname, port }) => {
+  console.log(`Elysia is Running at http://${hostname}:${port}`)
+  //console.log(`Elysia is running at http://${app.server?.hostname}:${app.server?.port}`)
 });
-
-app.delete("/api/task/:id", async ({ params }) => {
-  if(params?.id){
-    //let id = parseInt(params.id)
-    let id = params.id
-    console.log("DELETE: ", id)
-    try {
-      let query = db.query(`DELETE FROM tasks WHERE id = ?`).get(id);  
-      console.log("query: ",query)
-      return new Response(JSON.stringify({api:"DELETE"}))
-    } catch (error) {
-      console.log("DELETE DB ERROR:",error);
-    }
-  }
-  
-  return new Response(JSON.stringify({api:"ERROR"}), {
-    //headers
-  })
-});
-
-//app.patch("/api/task/:id")
-app.put("/api/task/:id",({params, body})=>{
-  if((body !=null) && (params !=null)){
-    if((body.content != null)&&(body.content != "") && (params.id !=null)){
-      try {
-        let query = db.query(`UPDATE tasks SET content = ?  WHERE id = ?`).get(body.content, params.id);  
-        console.log("query: ",query)
-        return new Response(JSON.stringify({api:"UPDATE"}))
-      } catch (error) {
-        console.log("DELETE DB ERROR:",error);
-      }
-    }
-  }
-
-  return new Response(JSON.stringify({api:"ERROR"}), {
-    //headers
-  })
-})
-
-app.get('/testtoken', async ({setCookie}) => {
-  setCookie('auth', 'test', {
-    httpOnly: true,
-    maxAge: 7 * 86400,
-  })
-  //return new Response('token')
-  return 'testtoken'
-})
-
-app.get('/json', () => new Response(
-  JSON.stringify(
-    {
-      'vtuber': [
-        'John Doe',
-        'test guest'
-      ]
-    }, 
-    {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-    )
-  )
-);
-
-//works
-app.get('/rawjson', () => {
-  return {text:"test"}
-})
-
-app.listen(8080);
- 
-console.log(`Elysia is running at http://${app.server?.hostname}:${app.server?.port}`)
+//END SERVER
