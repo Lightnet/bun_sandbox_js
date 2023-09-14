@@ -7,7 +7,7 @@
     "build": "vite build",
     "serve": "vite preview",
     "server": "bun run --hot --watch server.js",
-    "buns": "bun --hot run bun_server.js",
+    "buns": "bun --hot run tests/bun_server.js",
     "server0": "bun run --hot elysia_server.js"
   },
   "devDependencies": {

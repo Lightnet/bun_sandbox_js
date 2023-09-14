@@ -1,16 +1,12 @@
 //basic test for add, edit, delete
-
 import van from "https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.2.0.min.js";
 const {a, button, div, label, input} = van.tags
 console.log("task client test");
-
 const TaskEL = () =>{
-
   const taskContent = van.state('');
   const taskId = van.state('');
   const taskEdit = van.state('');
   const tasks = van.state([]);
-  const taskEl = div({id:"tasks"});
 
   async function get_tasks(){
     console.log("get tasks...")
@@ -20,7 +16,6 @@ const TaskEL = () =>{
       if(data){
         tasks.val = data
         console.log(tasks.val);
-        update_tasks();
       }
     } catch (error) {
       console.log("GET LIST ERROR!",error);
@@ -52,34 +47,27 @@ const TaskEL = () =>{
     }
   }
 
-  function update_tasks(){
-    const items = tasks.val;
-    //console.log("items: ",items);
-    //console.log("items: ",items[0]);
-
-    for(const item of items ){
-      //console.log(item);
-      van.add(taskEl, div({id:item.id},
-        van.derive(() =>{//react changes on taskId
-          if (taskId.val == item.id){
-            console.log(item.id);
-            taskEdit.val = item.content;
-            return input({value:taskEdit, oninput:e=>taskEdit.val = e.target.value})
-          }else{
-            return label(item.content)
-          }
-        }),
-        van.derive(() =>{//react changes on taskId
-          //
-          if (taskId.val == item.id){
-            return button({onclick:()=>update_task()},'Update');
-          }else{
-            return button({onclick:()=>taskId.val = item.id},'Edit');
-          }
-        }),
-        button({onclick:()=>delete_task_id(item.id)},'Delete'),
-      ))
-    }
+  //function myTask({_id, _content}){ //task ui
+  const myTask = ({_id, _content})=>{
+    return div({id:_id},
+      van.derive(() =>{//react changes on taskId
+        if (taskId.val == _id){
+          console.log(_id);
+          taskEdit.val = _content;
+          return input({value:taskEdit, oninput:e=>taskEdit.val = e.target.value})
+        }else{
+          return label(_content)
+        }
+      }),
+      van.derive(() =>{//react changes on taskId
+        if (taskId.val == _id){
+          return button({onclick:()=>update_task()},'Update');
+        }else{
+          return button({onclick:()=>setEditID(_id)},'Edit');
+        }
+      }),
+      button({onclick:()=>delete_task_id(_id)},'Delete')
+    )
   }
 
   async function add_task(){
@@ -106,29 +94,7 @@ const TaskEL = () =>{
               content:content,
               isDone:null
             })
-            console.log("tasks.val: ", tasks.val)
-            
-            van.add(taskEl, div({id:data.id},
-              van.derive(() =>{//react changes on taskId
-                if (taskId.val == data.id){
-                  console.log(data.id);
-                  taskEdit.val = content;
-                  return input({value:taskEdit, oninput:e=>taskEdit.val = e.target.value})
-                }else{
-                  return label(content)
-                }
-              }),
-              van.derive(() =>{//react changes on taskId
-                //
-                if (taskId.val == data.id){
-                  return button({onclick:()=>update_task()},'Update');
-                }else{
-                  return button({onclick:()=>taskId.val = data.id},'Edit');
-                }
-              }),
-              button({onclick:()=>delete_task_id(data.id)},'Delete'),
-            ));
-            
+            console.log("tasks.val: ", tasks.val);
           }
         }
       }  
@@ -142,13 +108,9 @@ const TaskEL = () =>{
     console.log("UPDATE!");
     console.log("ID: ", taskId.val);
     console.log("Content: ", taskEdit.val);
-    if(!taskEdit.val || !taskId.val){
-      console.log("EMPTY!")
-      return;
-    }
+    if(!taskEdit.val || !taskId.val){console.log("EMPTY!");return;}
     try {
-      let taskid = taskId.val;
-      let editcontent = taskEdit.val;
+      let taskid = taskId.val;let editcontent = taskEdit.val;
       const resp = await fetch("/api/task/"+taskid,{
         method:'PUT',
         headers:{
@@ -167,17 +129,49 @@ const TaskEL = () =>{
           }
           return item;
         });
-        taskId.val = '';
-        taskEdit.val = '';
+        //console.log("tasks.val");
+        //console.log(tasks.val);
       }
     } catch (error) {
       console.log("TASK UPDATE ERROR!", error);
+    } finally{
+      taskId.val = '';
+      taskEdit.val = '';
     }
   }
 
-  //van.derive(()=>{
-    //console.log("tasks.val: ",tasks.val);
-  //})
+  function setEditID(id){
+    taskId.val = id;
+  }
+
+  const update_tasks = van.derive(()=>{
+    const myTasks = tasks.val;
+    return div(myTasks.map(item=>{
+      
+      return div({id:item.id},
+        van.derive(() =>{//react changes on taskId
+          if (taskId.val == item.id){
+            console.log(item.id);
+            taskEdit.val = item.content;
+            return input({value:taskEdit, oninput:e=>taskEdit.val = e.target.value})
+          }else{
+            return label(item.content)
+          }
+        }),
+        van.derive(() =>{//react changes on taskId
+          if (taskId.val == item.id){
+            return button({onclick:()=>update_task()},'Update');
+          }else{
+            return button({onclick:()=>setEditID(item.id)},'Edit');
+          }
+        }),
+        button({onclick:()=>delete_task_id(item.id)},'Delete')
+      );
+      
+      //return myTask({_id:item.id, _content:item.content});  //does not work???
+    
+    }));
+  });
 
   //init
   get_tasks();
@@ -192,10 +186,9 @@ const TaskEL = () =>{
         value:taskContent,
         oninput: e=>taskContent.val = e.target.value
       }),
-      button({onclick:()=>add_task()},"Add"),
-      //button({onclick:()=>click_test()},"Add"),
+      button({onclick: async()=>add_task()},"Add"),
     ),
-    taskEl,
+    update_tasks,
   )
 }
 
